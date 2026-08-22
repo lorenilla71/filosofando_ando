@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Camino de Sócrates</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lato:wght@400;700&display=swap');
+
+        :root {
+            --primary: #4A148C;
+            --secondary: #FF8F00;
+            --accent: #00E676;
+            --danger: #FF1744;
+            --background: #121212;
+            --text-light: #FFFFFF;
+            --board-bg: #2C2C2C;
+            --tile-bg: #FFB300;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--background);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Cinzel', serif;
+            text-align: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Start Screen */
+        .title-box {
+            background: linear-gradient(135deg, var(--primary), #7B1FA2);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            border: 4px solid var(--secondary);
+        }
+
+        .title-box h1 {
+            font-size: 3em;
+            color: var(--secondary);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="text"] {
+            padding: 15px;
+            font-size: 1.2em;
+            border-radius: 8px;
+            border: 2px solid var(--secondary);
+            width: 300px;
+            text-align: center;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            outline: none;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--text-light);
+            background: var(--secondary);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 143, 0, 0.4);
+        }
+
+        button:hover {
+            background: #FFB300;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 143, 0, 0.6);
+        }
+
+        /* Game Screen */
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            background: var(--primary);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: 2px solid var(--secondary);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            background: var(--board-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            margin-bottom: 25px;
+            width: 100%;
+        }
+
+        .tile {
+            background: var(--tile-bg);
+            color: #333;
+            height: 90px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            position: relative;
+            box-shadow: 0 5px 0 #C76D00;
+            transition: transform 0.2s;
+        }
+
+        /* Winding Path Layout */
+        .tile:nth-child(1) { grid-column: 1; grid-row: 1; }
+        .tile:nth-child(2) { grid-column: 2; grid-row: 1; }
+        .tile:nth-child(3) { grid-column: 3; grid-row: 1; }
+        .tile:nth-child(4) { grid-column: 4; grid-row: 1; }
+        .tile:nth-child(5) { grid-column: 4; grid-row: 2; }
+        .tile:nth-child(6) { grid-column: 3; grid-row: 2; }
+        .tile:nth-child(7) { grid-column: 2; grid-row: 2; }
+        .tile:nth-child(8) { grid-column: 1; grid-row: 2; }
+        .tile:nth-child(9) { grid-column: 1; grid-row: 3; }
+        .tile:nth-child(10) { grid-column: 2; grid-row: 3; }
+        
+        /* The final goal */
+        .tile:nth-child(11) { 
+            grid-column: 3 / span 2; 
+            grid-row: 3; 
+            background: var(--accent); 
+            box-shadow: 0 5px 0 #00B25C;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .token {
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, #fff, #ddd);
+            border: 4px solid var(--primary);
+            border-radius: 50%;
+            position: absolute;
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.6em;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .controls {
+            text-align: center;
+        }
+
+        /* Modal / Question Area */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .question-card {
+            background: var(--primary);
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid var(--secondary);
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            animation: bounceIn 0.4s;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            60% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+
+        .question-card h2 {
+            color: var(--secondary);
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .option-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid var(--secondary);
+            padding: 15px;
+            font-size: 1.1em;
+            text-align: left;
+        }
+
+        .option-btn:hover {
+            background: var(--secondary);
+            color: #121212;
+        }
+
+        .option-btn.correct {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #121212;
+        }
+
+        .option-btn.wrong {
+            background: var(--danger);
+            border-color: var(--danger);
+        }
+
+        /* Victory Screen */
+        .victory-box {
+            text-align: center;
+            background: linear-gradient(135deg, #FFB300, #FF8F00);
+            padding: 50px;
+            border-radius: 20px;
+            border: 5px solid white;
+            color: #333;
+        }
+
+        .victory-box h1 {
+            font-size: 4em;
+            margin-bottom: 10px;
+            color: white;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        }
+
+        .victory-box p {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .board { grid-template-columns: repeat(2, 1fr); }
+            .tile:nth-child(n) { grid-column: auto; grid-row: auto; } /* Simplifica en móviles */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- PANTALLA DE INICIO -->
+        <div id="start-screen" class="screen active">
+            <div class="title-box">
+                <h1>El Camino de Sócrates</h1>
+                <h2>Carrera Filosófica</h2>
+                <p style="margin-top: 15px; font-size: 1.2em;">Responde las preguntas, avanza en el tablero y alcanza la verdadera sabiduría.</p>
+                <div class="input-group">
+                    <input type="text" id="player-name" placeholder="Escribe tu nombre..." autocomplete="off">
+                    <button onclick="startGame()">Comenzar el Diálogo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE JUEGO -->
+        <div id="game-screen" class="screen">
+            <div class="hud">
+                <span id="display-name">Jugador: </span>
+                <span style="color: var(--secondary);">Meta: 100 pts</span>
+                <span>Puntos: <span id="score" style="color: var(--accent);">0</span></span>
+            </div>
+
+            <div class="board" id="board">
+                <!-- Tiles generados por JS -->
+            </div>
+
+            <div class="controls">
+                <button id="action-btn" onclick="openQuestion()">Avanzar (Responder Pregunta)</button>
+            </div>
+        </div>
+
+        <!-- PANTALLA DE VICTORIA -->
+        <div id="victory-screen" class="screen">
+            <div class="victory-box">
+                <h1>¡Felicidades!</h1>
+                <p id="victory-msg">Has alcanzado la cima del conocimiento, [Nombre].</p>
+                <p>Tu puntuación final es: <strong>100 puntos</strong></p>
+                <button onclick="location.reload()" style="background: var(--primary); color: white;">Jugar de Nuevo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE PREGUNTA -->
+    <div class="modal-overlay" id="question-modal">
+        <div class="question-card">
+            <h2 id="q-text">¿Pregunta?</h2>
+            <div class="options" id="q-options">
+                <!-- Opciones generadas por JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración del juego
+        const pointsPerQuestion = 10;
+        const winningScore = 100;
+        let score = 0;
+        let currentPosition = 0; // 0 significa fuera del tablero
+        let playerName = "";
+        
+        // Banco de preguntas
+        const questionsBank = [
+            { q: "¿Qué método utilizaba Sócrates para llegar a la verdad mediante preguntas?", options: ["La Mayéutica", "El Racionalismo", "El Empirismo", "La Dialéctica Materialista"], a: 0 },
+            { q: "¿Cuál es la frase más célebre atribuida a Sócrates?", options: ["Pienso, luego existo", "Solo sé que no sé nada", "El hombre es la medida de todas las cosas", "Conócete a ti mismo y a los dioses"], a: 1 },
+            { q: "¿Quién fue el discípulo más famoso de Sócrates que escribió sus diálogos?", options: ["Aristóteles", "Alejandro Magno", "Platón", "Parménides"], a: 2 },
+            { q: "¿De qué delito oficial fue acusado Sócrates en su juicio?", options: ["Robar del tesoro público", "Asesinato político", "Corromper a los jóvenes e impiedad", "Traición a Atenas en la guerra"], a: 2 },
+            { q: "¿Qué significa 'Mayéutica' en su origen griego?", options: ["Arte de hablar en público", "Arte de dar a luz (partera)", "Arte de la guerra", "Amor a la sabiduría"], a: 1 },
+            { q: "Según Sócrates, ¿qué es la virtud?", options: ["La riqueza material", "El poder político", "El conocimiento / sabiduría", "La fuerza física"], a: 2 },
+            { q: "¿Cómo murió Sócrates tras ser condenado?", options: ["En la horca", "Exiliado de Atenas", "En batalla", "Bebiendo un veneno llamado cicuta"], a: 3 },
+            { q: "¿Qué oráculo declaró que no había hombre más sabio que Sócrates?", options: ["El Oráculo de Delfos", "El Oráculo de Tebas", "El Oráculo de Dodona", "El Oráculo de Atenea"], a: 0 },
+            { q: "Para Sócrates, nadie hace el mal de forma...", options: ["Ilegal", "Voluntaria (solo por ignorancia)", "Oculta", "Necesaria"], a: 1 },
+            { q: "¿Cuál era el imperativo principal de la filosofía socrática?", options: ["Conócete a ti mismo", "Domina a tus enemigos", "Acumula riquezas", "Duda de todo lo que ves"], a: 0 },
+            { q: "Sócrates comparaba su incómoda labor de despertar a Atenas con la de un...", options: ["León", "Lobo", "Tábano (insecto)", "Búho"], a: 2 },
+            { q: "¿Cuántas obras filosóficas escribió Sócrates directamente?", options: ["Tres", "Diez", "Ninguna", "Una sola (La Apología)"], a: 2 },
+            { q: "El oficio de la madre de Sócrates inspiró su método. ¿Cuál era?", options: ["Tejedora", "Partera", "Sacerdotisa", "Comerciante"], a: 1 },
+            { q: "¿Qué forma de gobierno criticaba Sócrates, lo que le ganó enemigos?", options: ["La Monarquía", "La Tiranía", "La Democracia ateniense", "La Oligarquía"], a: 2 },
+            { q: "En lugar de estudiar la naturaleza (cosmología), Sócrates se centró en...", options: ["La ética y el ser humano", "La matemática pura", "La astronomía", "La teología"], a: 0 }
+        ];
+
+        let availableQuestions = [];
+
+        function initBoard() {
+            const board = document.getElementById("board");
+            board.innerHTML = "";
+            for(let i = 1; i <= 10; i++) {
+                let tile = document.createElement("div");
+                tile.className = "tile";
+                tile.id = "tile-" + i;
+                tile.innerText = i;
+                board.appendChild(tile);
+            }
+            let goalTile = document.createElement("div");
+            goalTile.className = "tile";
+            goalTile.id = "tile-11";
+            goalTile.innerText = "¡SABIDURÍA!";
+            board.appendChild(goalTile);
+        }
+
+        function startGame() {
+            const input = document.getElementById("player-name");
+            if(input.value.trim() === "") {
+                input.style.borderColor = "var(--danger)";
+                input.placeholder = "¡Debes escribir un nombre!";
+                return;
+            }
+            
+            playerName = input.value.trim();
+            document.getElementById("display-name").innerText = "Jugador: " + playerName;
+            
+            // Mezclar preguntas (Fisher-Yates)
+            availableQuestions = [...questionsBank];
+            for (let i = availableQuestions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [availableQuestions[i], availableQuestions[j]] = [availableQuestions[j], availableQuestions[i]];
+            }
+
+            initBoard();
+            
+            document.getElementById("start-screen").classList.remove("active");
+            document.getElementById("game-screen").classList.add("active");
+        }
+
+        function createToken() {
+            if(!document.getElementById("player-token")) {
+                let token = document.createElement("div");
+                token.className = "token";
+                token.id = "player-token";
+                token.innerText = "P1";
+                document.getElementById("tile-1").appendChild(token);
+                currentPosition = 1;
+            }
+        }
+
+        function moveToken(spaces) {
+            if(currentPosition === 0) {
+                createToken();
+                return;
+            }
+            
+            currentPosition += spaces;
+            if(currentPosition > 11) currentPosition = 11;
+            
+            const token = document.getElementById("player-token");
+            const targetTile = document.getElementById("tile-" + currentPosition);
+            
+            if(targetTile && token) {
+                targetTile.appendChild(token);
+            }
+        }
+
+        function openQuestion() {
+            if(availableQuestions.length === 0) {
+                alert("Te has quedado sin preguntas, reiniciando el mazo...");
+                availableQuestions = [...questionsBank]; // Reset in rare case
+            }
+
+            const qData = availableQuestions.pop();
+            document.getElementById("q-text").innerText = qData.q;
+            
+            const optionsDiv = document.getElementById("q-options");
+            optionsDiv.innerHTML = "";
+
+            qData.options.forEach((opt, index) => {
+                let btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.innerText = opt;
+                btn.onclick = function() { checkAnswer(this, index, qData.a); };
+                optionsDiv.appendChild(btn);
+            });
+
+            document.getElementById("question-modal").classList.add("active");
+        }
+
+        function checkAnswer(btn, selected, correct) {
+            // Deshabilitar botones
+            const buttons = document.querySelectorAll(".option-btn");
+            buttons.forEach(b => b.disabled = true);
+
+            if(selected === correct) {
+                btn.classList.add("correct");
+                btn.innerText += " ✔ (¡Correcto! +10 pts)";
+                score += pointsPerQuestion;
+                document.getElementById("score").innerText = score;
+                
+                setTimeout(() => {
+                    closeModal();
+                    if(currentPosition === 0) {
+                        createToken();
+                    } else {
+                        moveToken(1); // Mueve una casilla por respuesta correcta
+                    }
+                    checkWin();
+                }, 1500);
+            } else {
+                btn.classList.add("wrong");
+                btn.innerText += " ✘ (Incorrecto)";
+                buttons[correct].classList.add("correct"); // Muestra la correcta
+                
+                setTimeout(() => {
+                    closeModal();
+                    alert("¡Reflexiona más profundamente! La ignorancia es el verdadero mal.");
+                }, 2000);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById("question-modal").classList.remove("active");
+        }
+
+        function checkWin() {
+            if(score >= winningScore) {
+                setTimeout(() => {
+                    document.getElementById("game-screen").classList.remove("active");
+                    document.getElementById("victory-screen").classList.add("active");
+                    document.getElementById("victory-msg").innerText = `¡Has alcanzado la cima del conocimiento, ${playerName}!`;
+                    
+                    // Asegurar que la ficha llegue a la meta visualmente
+                    moveToken(11 - currentPosition);
+                }, 800);
+            }
+        }
+    </script>
+</body>
+</html>
