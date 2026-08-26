@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrera del Saber: Sustancias Controladas</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&display=swap');
+
+        :root {
+            --primary: #FF5E7E;
+            --secondary: #42C2FF;
+            --accent: #FFC900;
+            --success: #38E54D;
+            --bg: #F0F9FF;
+            --text: #333333;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Fredoka One', cursive;
+            text-align: center;
+            color: var(--primary);
+            text-shadow: 2px 2px 0px white;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Pantalla de Inicio */
+        #setup-screen input {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px;
+            border: 2px solid var(--secondary);
+            border-radius: 10px;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        button {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-family: 'Fredoka One', cursive;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            background-color: #2ab0ed;
+        }
+
+        .btn-add { background-color: var(--success); }
+        .btn-add:hover { background-color: #2bd43f; }
+
+        .team-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .team-badge {
+            background: var(--bg);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 2px solid #ddd;
+        }
+
+        /* Pantalla de Juego */
+        #game-screen { display: none; }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff9e6;
+            border-radius: 15px;
+            border: 3px dashed var(--accent);
+        }
+
+        .team-score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .turn-indicator {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-family: 'Fredoka One', cursive;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Tablero tipo Juego de la Vida */
+        .board-container {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            position: relative;
+            background: #a8e6cf;
+            padding: 20px;
+            border-radius: 20px;
+            border: 5px solid #56c596;
+        }
+
+        .cell {
+            width: calc(20% - 10px);
+            height: 80px;
+            margin: 5px;
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Fredoka One', cursive;
+            font-size: 24px;
+            color: #ddd;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .cell.start { background: var(--accent); color: white; border-color: #dcb000; }
+        .cell.finish { background: var(--primary); color: white; border-color: #e54b68; }
+
+        .token {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            position: absolute;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: all 0.5s ease-in-out;
+            z-index: 10;
+        }
+
+        /* Modal de Pregunta */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .option-btn {
+            background: #f0f0f0;
+            color: var(--text);
+            font-family: 'Nunito', sans-serif;
+            text-align: left;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .option-btn:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .winner-text {
+            font-size: 2rem;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .confetti {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 999;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Pantalla de Inicio -->
+    <div id="setup-screen" class="container">
+        <h1>🏁 Carrera del Saber 🏁</h1>
+        <p>Anota los nombres de los equipos para comenzar. ¡El primero en llegar a 100 puntos gana!</p>
+        <div>
+            <input type="text" id="team-name" placeholder="Nombre del Equipo">
+            <button class="btn-add" onclick="addTeam()">+ Añadir Equipo</button>
+        }
+        </div>
+        <div id="team-list" class="team-list"></div>
+        <button onclick="startGame()" style="margin-top: 30px; display: none;" id="btn-start">¡Comenzar Juego!</button>
+    </div>
+
+    <!-- Pantalla de Juego -->
+    <div id="game-screen" class="container" style="max-width: 900px;">
+        <h2 id="turn-display" class="turn-indicator">Turno de: </h2>
+        
+        <div id="scoreboard" class="scoreboard"></div>
+
+        <div class="board-container" id="board">
+            <!-- El tablero se generará por JS -->
+        </div>
+
+        <button onclick="drawQuestion()">🎲 Sacar Pregunta</button>
+    </div>
+
+    <!-- Modal de Pregunta -->
+    <div id="question-modal" class="modal-overlay">
+        <div class="modal">
+            <h3 style="color: var(--secondary);">Pregunta por 10 Puntos</h3>
+            <p id="question-text" style="font-size: 1.2rem; font-weight: bold;"></p>
+            <div id="options-container" class="options"></div>
+        </div>
+    </div>
+
+    <!-- Modal de Resultado/Feedback -->
+    <div id="feedback-modal" class="modal-overlay">
+        <div class="modal">
+            <h2 id="feedback-title"></h2>
+            <p id="feedback-text"></p>
+            <button onclick="closeFeedback()">Continuar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Ganador -->
+    <div id="winner-modal" class="modal-overlay">
+        <div class="modal">
+            <h1>🏆 ¡Felicidades! 🏆</h1>
+            <p class="winner-text" id="winner-name"></p>
+            <p>¡Han alcanzado los 100 puntos y dominado el conocimiento sobre sustancias controladas!</p>
+            <button onclick="location.reload()">Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Base de Datos de Preguntas (Extraídas del documento) ---
+        const allQuestions = [
+            {
+                q: "¿Cuál es la función principal de las sustancias depresoras en el organismo?",
+                options: [
+                    "Aumentar la energía y eliminar el cansancio temporalmente.",
+                    "Alterar la visión y generar sonidos que no existen.",
+                    "Disminuir la actividad del sistema nervioso y producir relajación.",
+                    "Fortalecer la memoria y la capacidad de razonamiento."
+                ],
+                answer: 2
+            },
+            {
+                q: "¿Por qué el consumo de sustancias es más peligroso durante la adolescencia?",
+                options: [
+                    "Porque el cerebro aún está en desarrollo, especialmente en la toma de decisiones.",
+                    "Porque los adolescentes tienen más energía física que los adultos.",
+                    "Porque en esta etapa no existen factores de protección familiar.",
+                    "Porque las leyes son menos estrictas con los jóvenes."
+                ],
+                answer: 0
+            },
+            {
+                q: "¿Qué fenómeno ocurre cuando el cuerpo necesita dosis cada vez mayores para sentir el mismo efecto?",
+                options: ["Dependencia psicológica.", "Tolerancia.", "Abstinencia.", "Resistencia inmunológica."],
+                answer: 1
+            },
+            {
+                q: "¿Cuál de estos es un ejemplo de sustancia estimulante?",
+                options: ["Alcohol.", "Pegamentos y solventes.", "Sedantes y tranquilizantes.", "Anfetaminas."],
+                answer: 3
+            },
+            {
+                q: "La creencia de que se necesita una sustancia para 'enfrentar problemas' o 'sentirse bien' se denomina:",
+                options: ["Dependencia física.", "Tolerancia biológica.", "Dependencia psicológica.", "Factor de riesgo social."],
+                answer: 2
+            },
+            {
+                q: "¿Cómo afecta el consumo de sustancias al entorno familiar?",
+                options: [
+                    "Deteriora la comunicación y genera desconfianza por las mentiras.",
+                    "Mejora la comunicación entre padres e hijos.",
+                    "Fortalece los vínculos emocionales ante la crisis.",
+                    "No tiene ningún impacto en los hermanos menores."
+                ],
+                answer: 0
+            },
+            {
+                q: "En el ámbito académico, ¿qué consecuencia puede llevar directamente al abandono de estudios?",
+                options: [
+                    "La mejora en la participación de clases.",
+                    "El aumento de la motivación personal.",
+                    "La participación en actividades deportivas.",
+                    "El ausentismo escolar frecuente y el bajo rendimiento."
+                ],
+                answer: 3
+            },
+            {
+                q: "¿Cuál de los siguientes es un 'Factor de Riesgo'?",
+                options: [
+                    "Una comunicación familiar abierta.",
+                    "La presión de grupo por parte de amigos.",
+                    "Tener una autoestima saludable.",
+                    "Practicar deportes de manera constante."
+                ],
+                answer: 1
+            },
+            {
+                q: "¿Qué capacidad ayuda a resistir la presión de grupo de forma efectiva?",
+                options: [
+                    "El aislamiento social.",
+                    "Cambiar constantemente de opinión para agradar a otros.",
+                    "Aprender a decir 'no' de forma firme y respetuosa.",
+                    "Ignorar por completo a los amigos."
+                ],
+                answer: 2
+            },
+            {
+                q: "Los inhalantes (como pegamentos o pinturas) son peligrosos principalmente porque:",
+                options: [
+                    "Sus vapores dañan el cerebro y el sistema respiratorio.",
+                    "Solo afectan la piel por el contacto físico.",
+                    "No producen ningún efecto real en el cerebro.",
+                    "Son sustancias legales en todos los países."
+                ],
+                answer: 0
+            },
+            {
+                q: "(Verdadero o Falso) Las sustancias alucinógenas ayudan a que el cerebro distinga mejor la realidad de lo imaginario.",
+                options: ["Verdadero", "Falso"],
+                answer: 1
+            },
+            {
+                q: "(Verdadero o Falso) Una autoestima saludable es considerada un 'factor de protección' contra el consumo.",
+                options: ["Verdadero", "Falso"],
+                answer: 0
+            },
+            {
+                q: "(Verdadero o Falso) La dependencia física ocurre únicamente cuando la persona cree que necesita consumir para relajarse, sin presentar síntomas físicos.",
+                options: ["Verdadero", "Falso"],
+                answer: 1
+            },
+            {
+                q: "(Verdadero o Falso) El consumo de sustancias puede afectar negativamente la memoria y dificultar el recuerdo de contenidos estudiados.",
+                options: ["Verdadero", "Falso"],
+                answer: 0
+            },
+            {
+                q: "(Verdadero o Falso) Las sustancias depresoras aumentan la actividad cerebral y corporal, produciendo entusiasmo.",
+                options: ["Verdadero", "Falso"],
+                answer: 1
+            }
+        ];
+
+        // --- Estado del Juego ---
+        let teams = [];
+        let currentTeamIndex = 0;
+        let availableQuestions = [];
+        const colors = ['#FF5E7E', '#42C2FF', '#FFC900', '#38E54D', '#9D4EDD', '#FF9F1C'];
+
+        // --- Funciones de Configuración ---
+        function addTeam() {
+            const input = document.getElementById('team-name');
+            const name = input.value.trim();
+            if (name && teams.length < 6) {
+                const color = colors[teams.length];
+                teams.push({ name, score: 0, position: 0, color });
+                input.value = '';
+                renderTeamList();
+                if (teams.length >= 2) {
+                    document.getElementById('btn-start').style.display = 'inline-block';
+                }
+            } else if (teams.length >= 6) {
+                alert("Máximo 6 equipos permitados.");
+            }
+        }
+
+        function renderTeamList() {
+            const list = document.getElementById('team-list');
+            list.innerHTML = '';
+            teams.forEach(t => {
+                list.innerHTML += `<div class="team-badge" style="border-color: ${t.color}">
+                    <span style="display:inline-block; width:15px; height:15px; border-radius:50%; background:${t.color}"></span>
+                    ${t.name}
+                </div>`;
+            });
+        }
+
+        // --- Inicialización del Juego ---
+        function startGame() {
+            if (teams.length < 1) return;
+            // Barajar preguntas
+            availableQuestions = [...allQuestions].sort(() => Math.random() - 0.5);
+            
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            
+            createBoard();
+            updateUI();
+        }
+
+        function createBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            // Tablero de 11 casillas (0 al 10) donde 10 = 100 puntos
+            for (let i = 0; i <= 10; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.id = 'cell-' + i;
+                
+                if (i === 0) { cell.classList.add('start'); cell.innerText = 'Salida'; }
+                else if (i === 10) { cell.classList.add('finish'); cell.innerText = 'Meta'; }
+                else { cell.innerText = i * 10; } // Muestra los puntos requeridos
+                
+                board.appendChild(cell);
+            }
+            renderTokens();
+        }
+
+        function renderTokens() {
+            // Limpiar tokens anteriores
+            document.querySelectorAll('.token').forEach(t => t.remove());
+            
+            teams.forEach((team, index) => {
+                const cell = document.getElementById('cell-' + team.position);
+                if (cell) {
+                    const token = document.createElement('div');
+                    token.className = 'token';
+                    token.style.backgroundColor = team.color;
+                    // Distribuir tokens para que no se superpongan exactamente
+                    const offset = (index * 6) - 10;
+                    token.style.transform = `translate(${offset}px, ${offset}px)`;
+                    cell.appendChild(token);
+                }
+            });
+        }
+
+        function updateUI() {
+            // Actualizar turno
+            const turnDisplay = document.getElementById('turn-display');
+            const currentTeam = teams[currentTeamIndex];
+            turnDisplay.innerText = `Turno de: ${currentTeam.name}`;
+            turnDisplay.style.color = currentTeam.color;
+
+            // Actualizar Marcador
+            const scoreBoard = document.getElementById('scoreboard');
+            scoreBoard.innerHTML = '';
+            teams.forEach(t => {
+                scoreBoard.innerHTML += `
+                    <div class="team-score" style="color: ${t.color}">
+                        <span>${t.name}</span>
+                        <span style="font-size: 2rem;">${t.score} pts</span>
+                    </div>
+                `;
+            });
+
+            renderTokens();
+        }
+
+        // --- Lógica del Turno ---
+        let currentQuestion = null;
+
+        function drawQuestion() {
+            if (availableQuestions.length === 0) {
+                // Si se acaban, barajar de nuevo
+                availableQuestions = [...allQuestions].sort(() => Math.random() - 0.5);
+            }
+            currentQuestion = availableQuestions.pop();
+            
+            document.getElementById('question-text').innerText = currentQuestion.q;
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            currentQuestion.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('question-modal').style.display = 'flex';
+        }
+
+        function checkAnswer(selectedIndex) {
+            document.getElementById('question-modal').style.display = 'none';
+            const team = teams[currentTeamIndex];
+            
+            if (selectedIndex === currentQuestion.answer) {
+                team.score += 10;
+                team.position = Math.min(10, Math.floor(team.score / 10)); // Avanza 1 casilla cada 10 puntos
+                showFeedback(true, `¡Correcto! ${team.name} gana 10 puntos y avanza.`);
+            } else {
+                showFeedback(false, `Incorrecto. La respuesta correcta era: "${currentQuestion.options[currentQuestion.answer]}". ${team.name} no suma puntos.`);
+            }
+        }
+
+        function showFeedback(isCorrect, message) {
+            const modal = document.getElementById('feedback-modal');
+            const title = document.getElementById('feedback-title');
+            document.getElementById('feedback-text').innerText = message;
+            
+            if (isCorrect) {
+                title.innerText = "¡Excelente!";
+                title.style.color = "var(--success)";
+            } else {
+                title.innerText = "¡Casi!";
+                title.style.color = "var(--primary)";
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeFeedback() {
+            document.getElementById('feedback-modal').style.display = 'none';
+            const team = teams[currentTeamIndex];
+            
+            updateUI();
+
+            if (team.score >= 100) {
+                // ¡Hay un ganador!
+                document.getElementById('winner-name').innerText = `¡Equipo ${team.name}!`;
+                document.getElementById('winner-modal').style.display = 'flex';
+                launchConfetti();
+            } else {
+                // Siguiente turno
+                currentTeamIndex = (currentTeamIndex + 1) % teams.length;
+                updateUI();
+            }
+        }
+
+        // --- Efecto simple (Opcional visual) ---
+        function launchConfetti() {
+            document.body.style.backgroundColor = "#fffae6";
+        }
+    </script>
+</body>
+</html>
