@@ -3,530 +3,595 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Camino de Sócrates</title>
+    <title>Carrera del Saber: Sustancias Controladas</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lato:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&display=swap');
 
         :root {
-            --primary: #4A148C;
-            --secondary: #FF8F00;
-            --accent: #00E676;
-            --danger: #FF1744;
-            --background: #121212;
-            --text-light: #FFFFFF;
-            --board-bg: #2C2C2C;
-            --tile-bg: #FFB300;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            --primary: #FF5E7E;
+            --secondary: #42C2FF;
+            --accent: #FFC900;
+            --success: #38E54D;
+            --bg: #F0F9FF;
+            --text: #333333;
         }
 
         body {
-            font-family: 'Lato', sans-serif;
-            background-color: var(--background);
-            color: var(--text-light);
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
         h1, h2, h3 {
-            font-family: 'Cinzel', serif;
+            font-family: 'Fredoka One', cursive;
             text-align: center;
+            color: var(--primary);
+            text-shadow: 2px 2px 0px white;
         }
 
         .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 800px;
             width: 100%;
-            max-width: 900px;
-            padding: 20px;
-            position: relative;
-        }
-
-        /* Screens */
-        .screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        .screen.active {
-            display: flex;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* Start Screen */
-        .title-box {
-            background: linear-gradient(135deg, var(--primary), #7B1FA2);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             text-align: center;
-            border: 4px solid var(--secondary);
         }
 
-        .title-box h1 {
-            font-size: 3em;
-            color: var(--secondary);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-            margin-bottom: 10px;
-        }
-
-        .input-group {
-            margin-top: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-        }
-
-        input[type="text"] {
-            padding: 15px;
-            font-size: 1.2em;
-            border-radius: 8px;
+        /* Pantalla de Inicio */
+        #setup-screen input {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px;
             border: 2px solid var(--secondary);
-            width: 300px;
-            text-align: center;
-            background: rgba(255,255,255,0.9);
-            color: #333;
-            outline: none;
+            border-radius: 10px;
+            font-family: 'Nunito', sans-serif;
         }
 
         button {
-            padding: 15px 30px;
-            font-size: 1.2em;
-            font-weight: bold;
-            color: var(--text-light);
-            background: var(--secondary);
+            background-color: var(--secondary);
+            color: white;
             border: none;
-            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-family: 'Fredoka One', cursive;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(255, 143, 0, 0.4);
+            transition: transform 0.2s, background-color 0.2s;
+            margin-top: 15px;
         }
 
         button:hover {
-            background: #FFB300;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(255, 143, 0, 0.6);
+            transform: scale(1.05);
+            background-color: #2ab0ed;
         }
 
-        /* Game Screen */
-        .hud {
+        .btn-add { background-color: var(--success); }
+        .btn-add:hover { background-color: #2bd43f; }
+
+        .team-list {
             display: flex;
-            justify-content: space-between;
-            width: 100%;
-            background: var(--primary);
-            padding: 15px 25px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 1.2em;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .team-badge {
+            background: var(--bg);
+            padding: 8px 15px;
+            border-radius: 20px;
             font-weight: bold;
-            border: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 2px solid #ddd;
         }
 
-        .board {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            background: var(--board-bg);
-            padding: 25px;
+        /* Pantalla de Juego */
+        #game-screen { display: none; }
+
+        .scoreboard {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff9e6;
             border-radius: 15px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
-            margin-bottom: 25px;
-            width: 100%;
+            border: 3px dashed var(--accent);
         }
 
-        .tile {
-            background: var(--tile-bg);
-            color: #333;
-            height: 90px;
-            border-radius: 10px;
+        .team-score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .turn-indicator {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-family: 'Fredoka One', cursive;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Tablero tipo Juego de la Vida */
+        .board-container {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            position: relative;
+            background: #a8e6cf;
+            padding: 20px;
+            border-radius: 20px;
+            border: 5px solid #56c596;
+        }
+
+        .cell {
+            width: calc(20% - 10px);
+            height: 80px;
+            margin: 5px;
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 15px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5em;
-            font-weight: bold;
+            font-family: 'Fredoka One', cursive;
+            font-size: 24px;
+            color: #ddd;
             position: relative;
-            box-shadow: 0 5px 0 #C76D00;
-            transition: transform 0.2s;
+            box-sizing: border-box;
         }
 
-        /* Winding Path Layout */
-        .tile:nth-child(1) { grid-column: 1; grid-row: 1; }
-        .tile:nth-child(2) { grid-column: 2; grid-row: 1; }
-        .tile:nth-child(3) { grid-column: 3; grid-row: 1; }
-        .tile:nth-child(4) { grid-column: 4; grid-row: 1; }
-        .tile:nth-child(5) { grid-column: 4; grid-row: 2; }
-        .tile:nth-child(6) { grid-column: 3; grid-row: 2; }
-        .tile:nth-child(7) { grid-column: 2; grid-row: 2; }
-        .tile:nth-child(8) { grid-column: 1; grid-row: 2; }
-        .tile:nth-child(9) { grid-column: 1; grid-row: 3; }
-        .tile:nth-child(10) { grid-column: 2; grid-row: 3; }
-        
-        /* The final goal */
-        .tile:nth-child(11) { 
-            grid-column: 3 / span 2; 
-            grid-row: 3; 
-            background: var(--accent); 
-            box-shadow: 0 5px 0 #00B25C;
-            color: white;
-            font-size: 1.2em;
-        }
+        .cell.start { background: var(--accent); color: white; border-color: #dcb000; }
+        .cell.finish { background: var(--primary); color: white; border-color: #e54b68; }
 
         .token {
-            width: 40px;
-            height: 40px;
-            background: radial-gradient(circle, #fff, #ddd);
-            border: 4px solid var(--primary);
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             position: absolute;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: all 0.5s ease-in-out;
             z-index: 10;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
-            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 0.6em;
-            color: var(--primary);
-            font-weight: bold;
         }
 
-        .controls {
-            text-align: center;
-        }
-
-        /* Modal / Question Area */
+        /* Modal de Pregunta */
         .modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
-            z-index: 100;
+            background: rgba(0,0,0,0.6);
             justify-content: center;
             align-items: center;
+            z-index: 100;
         }
 
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .question-card {
-            background: var(--primary);
-            width: 90%;
-            max-width: 600px;
+        .modal {
+            background: white;
             padding: 30px;
-            border-radius: 15px;
-            border: 3px solid var(--secondary);
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
             text-align: center;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-            animation: bounceIn 0.4s;
+            animation: slideIn 0.3s ease-out;
         }
 
-        @keyframes bounceIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            60% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(1); }
-        }
-
-        .question-card h2 {
-            color: var(--secondary);
-            margin-bottom: 20px;
-            font-size: 1.8em;
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .options {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 12px;
-            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
         }
 
         .option-btn {
-            background: rgba(255,255,255,0.1);
-            color: white;
-            border: 2px solid var(--secondary);
-            padding: 15px;
-            font-size: 1.1em;
+            background: #f0f0f0;
+            color: var(--text);
+            font-family: 'Nunito', sans-serif;
             text-align: left;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
         }
 
         .option-btn:hover {
             background: var(--secondary);
-            color: #121212;
-        }
-
-        .option-btn.correct {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #121212;
-        }
-
-        .option-btn.wrong {
-            background: var(--danger);
-            border-color: var(--danger);
-        }
-
-        /* Victory Screen */
-        .victory-box {
-            text-align: center;
-            background: linear-gradient(135deg, #FFB300, #FF8F00);
-            padding: 50px;
-            border-radius: 20px;
-            border: 5px solid white;
-            color: #333;
-        }
-
-        .victory-box h1 {
-            font-size: 4em;
-            margin-bottom: 10px;
             color: white;
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
         }
 
-        .victory-box p {
-            font-size: 1.5em;
-            margin-bottom: 30px;
-            font-weight: bold;
+        .winner-text {
+            font-size: 2rem;
+            color: var(--primary);
+            margin: 20px 0;
         }
 
-        @media (max-width: 600px) {
-            .board { grid-template-columns: repeat(2, 1fr); }
-            .tile:nth-child(n) { grid-column: auto; grid-row: auto; } /* Simplifica en móviles */
+        .confetti {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top: 0; left: 0;
+            pointer-events: none;
+            z-index: 999;
+            display: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- PANTALLA DE INICIO -->
-        <div id="start-screen" class="screen active">
-            <div class="title-box">
-                <h1>El Camino de Sócrates</h1>
-                <h2>Carrera Filosófica</h2>
-                <p style="margin-top: 15px; font-size: 1.2em;">Responde las preguntas, avanza en el tablero y alcanza la verdadera sabiduría.</p>
-                <div class="input-group">
-                    <input type="text" id="player-name" placeholder="Escribe tu nombre..." autocomplete="off">
-                    <button onclick="startGame()">Comenzar el Diálogo</button>
-                </div>
-            </div>
+    <!-- Pantalla de Inicio -->
+    <div id="setup-screen" class="container">
+        <h1>🏁 Carrera del Saber 🏁</h1>
+        <p>Anota los nombres de los equipos para comenzar. ¡El primero en llegar a 100 puntos gana!</p>
+        <div>
+            <input type="text" id="team-name" placeholder="Nombre del Equipo">
+            <button class="btn-add" onclick="addTeam()">+ Añadir Equipo</button>
+        }
+        </div>
+        <div id="team-list" class="team-list"></div>
+        <button onclick="startGame()" style="margin-top: 30px; display: none;" id="btn-start">¡Comenzar Juego!</button>
+    </div>
+
+    <!-- Pantalla de Juego -->
+    <div id="game-screen" class="container" style="max-width: 900px;">
+        <h2 id="turn-display" class="turn-indicator">Turno de: </h2>
+        
+        <div id="scoreboard" class="scoreboard"></div>
+
+        <div class="board-container" id="board">
+            <!-- El tablero se generará por JS -->
         </div>
 
-        <!-- PANTALLA DE JUEGO -->
-        <div id="game-screen" class="screen">
-            <div class="hud">
-                <span id="display-name">Jugador: </span>
-                <span style="color: var(--secondary);">Meta: 100 pts</span>
-                <span>Puntos: <span id="score" style="color: var(--accent);">0</span></span>
-            </div>
+        <button onclick="drawQuestion()">🎲 Sacar Pregunta</button>
+    </div>
 
-            <div class="board" id="board">
-                <!-- Tiles generados por JS -->
-            </div>
-
-            <div class="controls">
-                <button id="action-btn" onclick="openQuestion()">Avanzar (Responder Pregunta)</button>
-            </div>
-        </div>
-
-        <!-- PANTALLA DE VICTORIA -->
-        <div id="victory-screen" class="screen">
-            <div class="victory-box">
-                <h1>¡Felicidades!</h1>
-                <p id="victory-msg">Has alcanzado la cima del conocimiento, [Nombre].</p>
-                <p>Tu puntuación final es: <strong>100 puntos</strong></p>
-                <button onclick="location.reload()" style="background: var(--primary); color: white;">Jugar de Nuevo</button>
-            </div>
+    <!-- Modal de Pregunta -->
+    <div id="question-modal" class="modal-overlay">
+        <div class="modal">
+            <h3 style="color: var(--secondary);">Pregunta por 10 Puntos</h3>
+            <p id="question-text" style="font-size: 1.2rem; font-weight: bold;"></p>
+            <div id="options-container" class="options"></div>
         </div>
     </div>
 
-    <!-- MODAL DE PREGUNTA -->
-    <div class="modal-overlay" id="question-modal">
-        <div class="question-card">
-            <h2 id="q-text">¿Pregunta?</h2>
-            <div class="options" id="q-options">
-                <!-- Opciones generadas por JS -->
-            </div>
+    <!-- Modal de Resultado/Feedback -->
+    <div id="feedback-modal" class="modal-overlay">
+        <div class="modal">
+            <h2 id="feedback-title"></h2>
+            <p id="feedback-text"></p>
+            <button onclick="closeFeedback()">Continuar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Ganador -->
+    <div id="winner-modal" class="modal-overlay">
+        <div class="modal">
+            <h1>🏆 ¡Felicidades! 🏆</h1>
+            <p class="winner-text" id="winner-name"></p>
+            <p>¡Han alcanzado los 100 puntos y dominado el conocimiento sobre sustancias controladas!</p>
+            <button onclick="location.reload()">Jugar de Nuevo</button>
         </div>
     </div>
 
     <script>
-        // Configuración del juego
-        const pointsPerQuestion = 10;
-        const winningScore = 100;
-        let score = 0;
-        let currentPosition = 0; // 0 significa fuera del tablero
-        let playerName = "";
-        
-        // Banco de preguntas
-        const questionsBank = [
-            { q: "¿Qué método utilizaba Sócrates para llegar a la verdad mediante preguntas?", options: ["La Mayéutica", "El Racionalismo", "El Empirismo", "La Dialéctica Materialista"], a: 0 },
-            { q: "¿Cuál es la frase más célebre atribuida a Sócrates?", options: ["Pienso, luego existo", "Solo sé que no sé nada", "El hombre es la medida de todas las cosas", "Conócete a ti mismo y a los dioses"], a: 1 },
-            { q: "¿Quién fue el discípulo más famoso de Sócrates que escribió sus diálogos?", options: ["Aristóteles", "Alejandro Magno", "Platón", "Parménides"], a: 2 },
-            { q: "¿De qué delito oficial fue acusado Sócrates en su juicio?", options: ["Robar del tesoro público", "Asesinato político", "Corromper a los jóvenes e impiedad", "Traición a Atenas en la guerra"], a: 2 },
-            { q: "¿Qué significa 'Mayéutica' en su origen griego?", options: ["Arte de hablar en público", "Arte de dar a luz (partera)", "Arte de la guerra", "Amor a la sabiduría"], a: 1 },
-            { q: "Según Sócrates, ¿qué es la virtud?", options: ["La riqueza material", "El poder político", "El conocimiento / sabiduría", "La fuerza física"], a: 2 },
-            { q: "¿Cómo murió Sócrates tras ser condenado?", options: ["En la horca", "Exiliado de Atenas", "En batalla", "Bebiendo un veneno llamado cicuta"], a: 3 },
-            { q: "¿Qué oráculo declaró que no había hombre más sabio que Sócrates?", options: ["El Oráculo de Delfos", "El Oráculo de Tebas", "El Oráculo de Dodona", "El Oráculo de Atenea"], a: 0 },
-            { q: "Para Sócrates, nadie hace el mal de forma...", options: ["Ilegal", "Voluntaria (solo por ignorancia)", "Oculta", "Necesaria"], a: 1 },
-            { q: "¿Cuál era el imperativo principal de la filosofía socrática?", options: ["Conócete a ti mismo", "Domina a tus enemigos", "Acumula riquezas", "Duda de todo lo que ves"], a: 0 },
-            { q: "Sócrates comparaba su incómoda labor de despertar a Atenas con la de un...", options: ["León", "Lobo", "Tábano (insecto)", "Búho"], a: 2 },
-            { q: "¿Cuántas obras filosóficas escribió Sócrates directamente?", options: ["Tres", "Diez", "Ninguna", "Una sola (La Apología)"], a: 2 },
-            { q: "El oficio de la madre de Sócrates inspiró su método. ¿Cuál era?", options: ["Tejedora", "Partera", "Sacerdotisa", "Comerciante"], a: 1 },
-            { q: "¿Qué forma de gobierno criticaba Sócrates, lo que le ganó enemigos?", options: ["La Monarquía", "La Tiranía", "La Democracia ateniense", "La Oligarquía"], a: 2 },
-            { q: "En lugar de estudiar la naturaleza (cosmología), Sócrates se centró en...", options: ["La ética y el ser humano", "La matemática pura", "La astronomía", "La teología"], a: 0 }
+        // --- Base de Datos de Preguntas (Extraídas del documento) ---
+        const allQuestions = [
+            {
+                q: "¿Cuál es la función principal de las sustancias depresoras en el organismo?",
+                options: [
+                    "Aumentar la energía y eliminar el cansancio temporalmente.",
+                    "Alterar la visión y generar sonidos que no existen.",
+                    "Disminuir la actividad del sistema nervioso y producir relajación.",
+                    "Fortalecer la memoria y la capacidad de razonamiento."
+                ],
+                answer: 2
+            },
+            {
+                q: "¿Por qué el consumo de sustancias es más peligroso durante la adolescencia?",
+                options: [
+                    "Porque el cerebro aún está en desarrollo, especialmente en la toma de decisiones.",
+                    "Porque los adolescentes tienen más energía física que los adultos.",
+                    "Porque en esta etapa no existen factores de protección familiar.",
+                    "Porque las leyes son menos estrictas con los jóvenes."
+                ],
+                answer: 0
+            },
+            {
+                q: "¿Qué fenómeno ocurre cuando el cuerpo necesita dosis cada vez mayores para sentir el mismo efecto?",
+                options: ["Dependencia psicológica.", "Tolerancia.", "Abstinencia.", "Resistencia inmunológica."],
+                answer: 1
+            },
+            {
+                q: "¿Cuál de estos es un ejemplo de sustancia estimulante?",
+                options: ["Alcohol.", "Pegamentos y solventes.", "Sedantes y tranquilizantes.", "Anfetaminas."],
+                answer: 3
+            },
+            {
+                q: "La creencia de que se necesita una sustancia para 'enfrentar problemas' o 'sentirse bien' se denomina:",
+                options: ["Dependencia física.", "Tolerancia biológica.", "Dependencia psicológica.", "Factor de riesgo social."],
+                answer: 2
+            },
+            {
+                q: "¿Cómo afecta el consumo de sustancias al entorno familiar?",
+                options: [
+                    "Deteriora la comunicación y genera desconfianza por las mentiras.",
+                    "Mejora la comunicación entre padres e hijos.",
+                    "Fortalece los vínculos emocionales ante la crisis.",
+                    "No tiene ningún impacto en los hermanos menores."
+                ],
+                answer: 0
+            },
+            {
+                q: "En el ámbito académico, ¿qué consecuencia puede llevar directamente al abandono de estudios?",
+                options: [
+                    "La mejora en la participación de clases.",
+                    "El aumento de la motivación personal.",
+                    "La participación en actividades deportivas.",
+                    "El ausentismo escolar frecuente y el bajo rendimiento."
+                ],
+                answer: 3
+            },
+            {
+                q: "¿Cuál de los siguientes es un 'Factor de Riesgo'?",
+                options: [
+                    "Una comunicación familiar abierta.",
+                    "La presión de grupo por parte de amigos.",
+                    "Tener una autoestima saludable.",
+                    "Practicar deportes de manera constante."
+                ],
+                answer: 1
+            },
+            {
+                q: "¿Qué capacidad ayuda a resistir la presión de grupo de forma efectiva?",
+                options: [
+                    "El aislamiento social.",
+                    "Cambiar constantemente de opinión para agradar a otros.",
+                    "Aprender a decir 'no' de forma firme y respetuosa.",
+                    "Ignorar por completo a los amigos."
+                ],
+                answer: 2
+            },
+            {
+                q: "Los inhalantes (como pegamentos o pinturas) son peligrosos principalmente porque:",
+                options: [
+                    "Sus vapores dañan el cerebro y el sistema respiratorio.",
+                    "Solo afectan la piel por el contacto físico.",
+                    "No producen ningún efecto real en el cerebro.",
+                    "Son sustancias legales en todos los países."
+                ],
+                answer: 0
+            },
+            {
+                q: "(Verdadero o Falso) Las sustancias alucinógenas ayudan a que el cerebro distinga mejor la realidad de lo imaginario.",
+                options: ["Verdadero", "Falso"],
+                answer: 1
+            },
+            {
+                q: "(Verdadero o Falso) Una autoestima saludable es considerada un 'factor de protección' contra el consumo.",
+                options: ["Verdadero", "Falso"],
+                answer: 0
+            },
+            {
+                q: "(Verdadero o Falso) La dependencia física ocurre únicamente cuando la persona cree que necesita consumir para relajarse, sin presentar síntomas físicos.",
+                options: ["Verdadero", "Falso"],
+                answer: 1
+            },
+            {
+                q: "(Verdadero o Falso) El consumo de sustancias puede afectar negativamente la memoria y dificultar el recuerdo de contenidos estudiados.",
+                options: ["Verdadero", "Falso"],
+                answer: 0
+            },
+            {
+                q: "(Verdadero o Falso) Las sustancias depresoras aumentan la actividad cerebral y corporal, produciendo entusiasmo.",
+                options: ["Verdadero", "Falso"],
+                answer: 1
+            }
         ];
 
+        // --- Estado del Juego ---
+        let teams = [];
+        let currentTeamIndex = 0;
         let availableQuestions = [];
+        const colors = ['#FF5E7E', '#42C2FF', '#FFC900', '#38E54D', '#9D4EDD', '#FF9F1C'];
 
-        function initBoard() {
-            const board = document.getElementById("board");
-            board.innerHTML = "";
-            for(let i = 1; i <= 10; i++) {
-                let tile = document.createElement("div");
-                tile.className = "tile";
-                tile.id = "tile-" + i;
-                tile.innerText = i;
-                board.appendChild(tile);
+        // --- Funciones de Configuración ---
+        function addTeam() {
+            const input = document.getElementById('team-name');
+            const name = input.value.trim();
+            if (name && teams.length < 6) {
+                const color = colors[teams.length];
+                teams.push({ name, score: 0, position: 0, color });
+                input.value = '';
+                renderTeamList();
+                if (teams.length >= 2) {
+                    document.getElementById('btn-start').style.display = 'inline-block';
+                }
+            } else if (teams.length >= 6) {
+                alert("Máximo 6 equipos permitados.");
             }
-            let goalTile = document.createElement("div");
-            goalTile.className = "tile";
-            goalTile.id = "tile-11";
-            goalTile.innerText = "¡SABIDURÍA!";
-            board.appendChild(goalTile);
         }
 
+        function renderTeamList() {
+            const list = document.getElementById('team-list');
+            list.innerHTML = '';
+            teams.forEach(t => {
+                list.innerHTML += `<div class="team-badge" style="border-color: ${t.color}">
+                    <span style="display:inline-block; width:15px; height:15px; border-radius:50%; background:${t.color}"></span>
+                    ${t.name}
+                </div>`;
+            });
+        }
+
+        // --- Inicialización del Juego ---
         function startGame() {
-            const input = document.getElementById("player-name");
-            if(input.value.trim() === "") {
-                input.style.borderColor = "var(--danger)";
-                input.placeholder = "¡Debes escribir un nombre!";
-                return;
-            }
+            if (teams.length < 1) return;
+            // Barajar preguntas
+            availableQuestions = [...allQuestions].sort(() => Math.random() - 0.5);
             
-            playerName = input.value.trim();
-            document.getElementById("display-name").innerText = "Jugador: " + playerName;
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
             
-            // Mezclar preguntas (Fisher-Yates)
-            availableQuestions = [...questionsBank];
-            for (let i = availableQuestions.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [availableQuestions[i], availableQuestions[j]] = [availableQuestions[j], availableQuestions[i]];
-            }
-
-            initBoard();
-            
-            document.getElementById("start-screen").classList.remove("active");
-            document.getElementById("game-screen").classList.add("active");
+            createBoard();
+            updateUI();
         }
 
-        function createToken() {
-            if(!document.getElementById("player-token")) {
-                let token = document.createElement("div");
-                token.className = "token";
-                token.id = "player-token";
-                token.innerText = "P1";
-                document.getElementById("tile-1").appendChild(token);
-                currentPosition = 1;
+        function createBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            // Tablero de 11 casillas (0 al 10) donde 10 = 100 puntos
+            for (let i = 0; i <= 10; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.id = 'cell-' + i;
+                
+                if (i === 0) { cell.classList.add('start'); cell.innerText = 'Salida'; }
+                else if (i === 10) { cell.classList.add('finish'); cell.innerText = 'Meta'; }
+                else { cell.innerText = i * 10; } // Muestra los puntos requeridos
+                
+                board.appendChild(cell);
             }
+            renderTokens();
         }
 
-        function moveToken(spaces) {
-            if(currentPosition === 0) {
-                createToken();
-                return;
-            }
+        function renderTokens() {
+            // Limpiar tokens anteriores
+            document.querySelectorAll('.token').forEach(t => t.remove());
             
-            currentPosition += spaces;
-            if(currentPosition > 11) currentPosition = 11;
-            
-            const token = document.getElementById("player-token");
-            const targetTile = document.getElementById("tile-" + currentPosition);
-            
-            if(targetTile && token) {
-                targetTile.appendChild(token);
-            }
+            teams.forEach((team, index) => {
+                const cell = document.getElementById('cell-' + team.position);
+                if (cell) {
+                    const token = document.createElement('div');
+                    token.className = 'token';
+                    token.style.backgroundColor = team.color;
+                    // Distribuir tokens para que no se superpongan exactamente
+                    const offset = (index * 6) - 10;
+                    token.style.transform = `translate(${offset}px, ${offset}px)`;
+                    cell.appendChild(token);
+                }
+            });
         }
 
-        function openQuestion() {
-            if(availableQuestions.length === 0) {
-                alert("Te has quedado sin preguntas, reiniciando el mazo...");
-                availableQuestions = [...questionsBank]; // Reset in rare case
-            }
+        function updateUI() {
+            // Actualizar turno
+            const turnDisplay = document.getElementById('turn-display');
+            const currentTeam = teams[currentTeamIndex];
+            turnDisplay.innerText = `Turno de: ${currentTeam.name}`;
+            turnDisplay.style.color = currentTeam.color;
 
-            const qData = availableQuestions.pop();
-            document.getElementById("q-text").innerText = qData.q;
-            
-            const optionsDiv = document.getElementById("q-options");
-            optionsDiv.innerHTML = "";
-
-            qData.options.forEach((opt, index) => {
-                let btn = document.createElement("button");
-                btn.className = "option-btn";
-                btn.innerText = opt;
-                btn.onclick = function() { checkAnswer(this, index, qData.a); };
-                optionsDiv.appendChild(btn);
+            // Actualizar Marcador
+            const scoreBoard = document.getElementById('scoreboard');
+            scoreBoard.innerHTML = '';
+            teams.forEach(t => {
+                scoreBoard.innerHTML += `
+                    <div class="team-score" style="color: ${t.color}">
+                        <span>${t.name}</span>
+                        <span style="font-size: 2rem;">${t.score} pts</span>
+                    </div>
+                `;
             });
 
-            document.getElementById("question-modal").classList.add("active");
+            renderTokens();
         }
 
-        function checkAnswer(btn, selected, correct) {
-            // Deshabilitar botones
-            const buttons = document.querySelectorAll(".option-btn");
-            buttons.forEach(b => b.disabled = true);
+        // --- Lógica del Turno ---
+        let currentQuestion = null;
 
-            if(selected === correct) {
-                btn.classList.add("correct");
-                btn.innerText += " ✔ (¡Correcto! +10 pts)";
-                score += pointsPerQuestion;
-                document.getElementById("score").innerText = score;
-                
-                setTimeout(() => {
-                    closeModal();
-                    if(currentPosition === 0) {
-                        createToken();
-                    } else {
-                        moveToken(1); // Mueve una casilla por respuesta correcta
-                    }
-                    checkWin();
-                }, 1500);
+        function drawQuestion() {
+            if (availableQuestions.length === 0) {
+                // Si se acaban, barajar de nuevo
+                availableQuestions = [...allQuestions].sort(() => Math.random() - 0.5);
+            }
+            currentQuestion = availableQuestions.pop();
+            
+            document.getElementById('question-text').innerText = currentQuestion.q;
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            currentQuestion.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('question-modal').style.display = 'flex';
+        }
+
+        function checkAnswer(selectedIndex) {
+            document.getElementById('question-modal').style.display = 'none';
+            const team = teams[currentTeamIndex];
+            
+            if (selectedIndex === currentQuestion.answer) {
+                team.score += 10;
+                team.position = Math.min(10, Math.floor(team.score / 10)); // Avanza 1 casilla cada 10 puntos
+                showFeedback(true, `¡Correcto! ${team.name} gana 10 puntos y avanza.`);
             } else {
-                btn.classList.add("wrong");
-                btn.innerText += " ✘ (Incorrecto)";
-                buttons[correct].classList.add("correct"); // Muestra la correcta
-                
-                setTimeout(() => {
-                    closeModal();
-                    alert("¡Reflexiona más profundamente! La ignorancia es el verdadero mal.");
-                }, 2000);
+                showFeedback(false, `Incorrecto. La respuesta correcta era: "${currentQuestion.options[currentQuestion.answer]}". ${team.name} no suma puntos.`);
             }
         }
 
-        function closeModal() {
-            document.getElementById("question-modal").classList.remove("active");
+        function showFeedback(isCorrect, message) {
+            const modal = document.getElementById('feedback-modal');
+            const title = document.getElementById('feedback-title');
+            document.getElementById('feedback-text').innerText = message;
+            
+            if (isCorrect) {
+                title.innerText = "¡Excelente!";
+                title.style.color = "var(--success)";
+            } else {
+                title.innerText = "¡Casi!";
+                title.style.color = "var(--primary)";
+            }
+            
+            modal.style.display = 'flex';
         }
 
-        function checkWin() {
-            if(score >= winningScore) {
-                setTimeout(() => {
-                    document.getElementById("game-screen").classList.remove("active");
-                    document.getElementById("victory-screen").classList.add("active");
-                    document.getElementById("victory-msg").innerText = `¡Has alcanzado la cima del conocimiento, ${playerName}!`;
-                    
-                    // Asegurar que la ficha llegue a la meta visualmente
-                    moveToken(11 - currentPosition);
-                }, 800);
+        function closeFeedback() {
+            document.getElementById('feedback-modal').style.display = 'none';
+            const team = teams[currentTeamIndex];
+            
+            updateUI();
+
+            if (team.score >= 100) {
+                // ¡Hay un ganador!
+                document.getElementById('winner-name').innerText = `¡Equipo ${team.name}!`;
+                document.getElementById('winner-modal').style.display = 'flex';
+                launchConfetti();
+            } else {
+                // Siguiente turno
+                currentTeamIndex = (currentTeamIndex + 1) % teams.length;
+                updateUI();
             }
+        }
+
+        // --- Efecto simple (Opcional visual) ---
+        function launchConfetti() {
+            document.body.style.backgroundColor = "#fffae6";
         }
     </script>
 </body>
